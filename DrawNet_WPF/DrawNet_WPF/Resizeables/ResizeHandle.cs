@@ -195,9 +195,42 @@ namespace DrawNet_WPF.Resizeables
             {
                 Point currentPoint = e.GetPosition(null);
                 Point vectorDiff = new Point(currentPoint.X - initialMousePosition.X, currentPoint.Y - initialMousePosition.Y);
-                Thickness newPos = new Thickness(
-                    initialElementData.X + ((DragType.Item1 == -1) ? 1 : 0) * vectorDiff.X,
-                    initialElementData.Y + ((DragType.Item2 == -1) ? 1 : 0) * vectorDiff.Y, 0, 0);
+
+                double max = 15;
+
+                bool mFlag = false;
+                double potentialW = initialElementData.Width + DragType.Item1 * vectorDiff.X;
+                if (potentialW < max && potentialW > -max)
+                {
+                    vectorDiff.X = (max - initialElementData.Width) / DragType.Item1;
+                    potentialW = initialElementData.Width + DragType.Item1 * vectorDiff.X;
+                }
+                double potentialH = initialElementData.Height + DragType.Item2 * vectorDiff.Y;
+                if (potentialH < max && potentialH > -max)
+                {
+                    vectorDiff.Y = (max - initialElementData.Height) / DragType.Item2;
+                    potentialH = initialElementData.Height + DragType.Item2 * vectorDiff.Y;
+                }
+                Thickness newPos;
+                if (potentialW < 0) { potentialW = -potentialW; mFlag = true; }
+                if (potentialH < 0) { potentialH = -potentialH; mFlag = true; }
+                if (mFlag)
+                {
+                    double px, py;
+                    px = initialElementData.X + (DragType.Item1 == -1 ? initialElementData.Width : DragType.Item1 * (initialElementData.Width + vectorDiff.X));
+
+
+                    py = initialElementData.Y + (DragType.Item2 == -1 ? initialElementData.Height : DragType.Item2 * (initialElementData.Height + vectorDiff.Y));
+
+
+                    newPos = new Thickness(px, py, 0, 0);
+                }
+                else
+                {
+                    newPos = new Thickness(
+                        initialElementData.X + ((DragType.Item1 == -1) ? 1 : 0) * vectorDiff.X,
+                        initialElementData.Y + ((DragType.Item2 == -1) ? 1 : 0) * vectorDiff.Y, 0, 0);
+                }
                 ResizeableRect? resizableRect = dragElement;
                 if (resizableRect != null)
                 {
@@ -214,8 +247,8 @@ namespace DrawNet_WPF.Resizeables
                     });*/
 
                     resizableRect.Margin = newPos;
-                    resizableRect.Width = initialElementData.Width + DragType.Item1 * vectorDiff.X;
-                    resizableRect.Height = initialElementData.Height + DragType.Item2 * vectorDiff.Y;
+                    resizableRect.Width = potentialW;
+                    resizableRect.Height = potentialH;
                 }
             }
         }
