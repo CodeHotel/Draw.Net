@@ -1,0 +1,68 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:Draw.Net_for_WPF"
+    xmlns:resizables="clr-namespace:Draw.Net_for_WPF.Resizeables"
+    xmlns:converters="clr-namespace:Draw.Net_for_WPF.Converters">
+    <converters:HandlePos x:Key="HandlePos" />
+
+    <Style TargetType="{x:Type resizables:ResizeHandle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type resizables:ResizeHandle}">
+                    <Rectangle x:Name="HandleRect"
+                           Visibility="Hidden"
+                           Fill="{TemplateBinding Fill}"
+                           Stroke="{TemplateBinding Stroke}"
+                           StrokeThickness="{TemplateBinding StrokeThickness}"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Width="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}"
+                           Height="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Rectangle.Margin>
+                            <MultiBinding Converter="{StaticResource HandlePos}">
+                                <Binding Path="HandleType" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay" />
+                                <Binding Path="Width" ElementName="MainRect" Mode="OneWay" />
+                                <Binding Path="Height" ElementName="MainRect" Mode="OneWay" />
+                                <Binding Path="HandleSize" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay" />
+                                <Binding Path="StrokeThickness" ElementName="MainRect" Mode="OneWay" />
+                            </MultiBinding>
+                        </Rectangle.Margin>
+                    </Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type resizables:ResizeableRect}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type resizables:ResizeableRect}">
+                    <Canvas Width="{Binding Width, RelativeSource={RelativeSource TemplatedParent}}"
+                            Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Rectangle x:Name="MainRect"
+                               Fill="{TemplateBinding Fill}"
+                               Stroke="{TemplateBinding Stroke}"
+                               StrokeThickness="{TemplateBinding StrokeThickness}"
+                               Opacity="{TemplateBinding Opacity}"
+                               Width="{TemplateBinding Width}"
+                               Height="{TemplateBinding Height}"/>
+                        <resizables:ResizeHandle x:Name="TL" HandleType="-1,-1"/>
+                        <resizables:ResizeHandle x:Name="TM" HandleType="0,-1"/>
+                        <resizables:ResizeHandle x:Name="TR" HandleType="1,-1"/>
+                        <resizables:ResizeHandle x:Name="ML" HandleType="-1,0"/>
+                        <resizables:ResizeHandle x:Name="MR" HandleType="1,0"/>
+                        <resizables:ResizeHandle x:Name="BL" HandleType="-1,1"/>
+                        <resizables:ResizeHandle x:Name="BM" HandleType="0,1"/>
+                        <resizables:ResizeHandle x:Name="BR" HandleType="1,1"/>
+                    </Canvas>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="MainRect" Property="Stroke" Value="Red" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

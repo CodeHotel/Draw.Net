@@ -1,0 +1,68 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:resizeables="clr-namespace:DrawNet_WPF.Resizeables"
+    xmlns:converters="clr-namespace:DrawNet_WPF.Converters">
+
+    <converters:HandlePos x:Key="HandlePos" />
+
+    <Style TargetType="{x:Type resizeables:ResizeHandle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type resizeables:ResizeHandle}">
+                    <Rectangle x:Name="HandleRect"
+                           Visibility="Hidden"
+                           Fill="{TemplateBinding Fill}"
+                           Stroke="{TemplateBinding Stroke}"
+                           StrokeThickness="{TemplateBinding StrokeThickness}"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"
+                           Width="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}"
+                           Height="{Binding HandleSize, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Rectangle.Margin>
+                            <MultiBinding Converter="{StaticResource HandlePos}">
+                                <Binding Path="HandleType" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay" />
+                                <Binding Path="Width" ElementName="MainRect" Mode="OneWay" />
+                                <Binding Path="Height" ElementName="MainRect" Mode="OneWay" />
+                                <Binding Path="HandleSize" RelativeSource="{RelativeSource TemplatedParent}" Mode="OneWay" />
+                                <Binding Path="StrokeThickness" ElementName="MainRect" Mode="OneWay" />
+                            </MultiBinding>
+                        </Rectangle.Margin>
+                    </Rectangle>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type resizeables:ResizeableRect}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type resizeables:ResizeableRect}">
+                    <Canvas Width="{Binding Width, RelativeSource={RelativeSource TemplatedParent}}"
+                            Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Rectangle x:Name="MainRect"
+                               Fill="{TemplateBinding Fill}"
+                               Stroke="{TemplateBinding Stroke}"
+                               StrokeThickness="{TemplateBinding StrokeThickness}"
+                               Opacity="{TemplateBinding Opacity}"
+                               Width="{TemplateBinding Width}"
+                               Height="{TemplateBinding Height}"/>
+                        <resizeables:ResizeHandle x:Name="TL" HandleType="-1,-1"/>
+                        <resizeables:ResizeHandle x:Name="TM" HandleType="0,-1"/>
+                        <resizeables:ResizeHandle x:Name="TR" HandleType="1,-1"/>
+                        <resizeables:ResizeHandle x:Name="ML" HandleType="-1,0"/>
+                        <resizeables:ResizeHandle x:Name="MR" HandleType="1,0"/>
+                        <resizeables:ResizeHandle x:Name="BL" HandleType="-1,1"/>
+                        <resizeables:ResizeHandle x:Name="BM" HandleType="0,1"/>
+                        <resizeables:ResizeHandle x:Name="BR" HandleType="1,1"/>
+                    </Canvas>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="MainRect" Property="Stroke" Value="Red" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{A05840FD-71D0-4D48-A350-BC1B70B9B073}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DrawNet_WPF", "DrawNet_WPF\DrawNet_WPF.csproj", "{70A87CFE-AA05-41F4-A0AE-73BF85981968}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A05840FD-71D0-4D48-A350-BC1B70B9B073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A05840FD-71D0-4D48-A350-BC1B70B9B073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A05840FD-71D0-4D48-A350-BC1B70B9B073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A05840FD-71D0-4D48-A350-BC1B70B9B073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70A87CFE-AA05-41F4-A0AE-73BF85981968}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70A87CFE-AA05-41F4-A0AE-73BF85981968}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70A87CFE-AA05-41F4-A0AE-73BF85981968}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70A87CFE-AA05-41F4-A0AE-73BF85981968}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4DD9EA1B-2110-4BBF-BC41-31116C6EB7D8}
+	EndGlobalSection
+EndGlobal
