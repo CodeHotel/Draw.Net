@@ -25,10 +25,5 @@ namespace TestApp
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            (outer.Children[2] as DrawNet_WPF.Handles.ResizeHandle).Margin = new Thickness(0, 0, 0, 0);
-
-        }
     }
 }

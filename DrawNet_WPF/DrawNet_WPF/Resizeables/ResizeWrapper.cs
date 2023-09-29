@@ -9,6 +9,7 @@ using System.Windows.Media;
 using DrawNet_WPF.Handles;
 using Vector = DrawNet_WPF.Converters.Vector;
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 namespace DrawNet_WPF.Resizeables
 {
     public class ResizeWrapper : Canvas
@@ -42,7 +43,7 @@ namespace DrawNet_WPF.Resizeables
             #region Gets closest ancestor that is Panel. Throws exception if not found
             var parent = VisualTreeHelper.GetParent(this);
 
-            Canvas foundPanel = null;
+            Canvas? foundPanel = null;
 
             while (parent != null)
             {
@@ -104,6 +105,7 @@ namespace DrawNet_WPF.Resizeables
             outerPanel.Children.Add(Handles[2, 2]);
             outerPanel.Children.Add(RotationHandle);
 
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Handles[0, 0].HandleMouseDown += DiagonalMouseDownHandler;
             Handles[1, 0].HandleMouseDown += LinearMouseDownHandler;
             Handles[2, 0].HandleMouseDown += DiagonalMouseDownHandler;
@@ -112,12 +114,14 @@ namespace DrawNet_WPF.Resizeables
             Handles[0, 2].HandleMouseDown += DiagonalMouseDownHandler;
             Handles[1, 2].HandleMouseDown += LinearMouseDownHandler;
             Handles[2, 2].HandleMouseDown += DiagonalMouseDownHandler;
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             InitHandles();
         }
 
         private void InitHandles()
         {
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Handles[0, 0].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[1, 0].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[2, 0].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
@@ -126,10 +130,12 @@ namespace DrawNet_WPF.Resizeables
             Handles[0, 2].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[1, 2].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[2, 2].InitHandle(outerPanel, this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         private void UpdateHandles()
         {
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
             Handles[0, 0].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[1, 0].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[2, 0].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
@@ -138,6 +144,7 @@ namespace DrawNet_WPF.Resizeables
             Handles[0, 2].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[1, 2].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
             Handles[2, 2].setHandleProperty(this, HandleShape, HandleSize, HandleStroke, HandleStrokeThickness, HandleFill);
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
 
         private void setRotationProperty(bool RotationEnabled, double RotationOffset)

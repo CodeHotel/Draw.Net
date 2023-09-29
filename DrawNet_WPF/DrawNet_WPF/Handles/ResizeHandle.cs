@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using DrawNet_WPF.Resizeables;
 using Vector = DrawNet_WPF.Converters.Vector;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 namespace DrawNet_WPF.Handles
 {

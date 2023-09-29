@@ -28,7 +28,9 @@ namespace DrawNet_WPF.Converters
                 }
             }
 
+            #pragma warning disable CS8603 // Possible null reference return.
             return base.ConvertFrom(context, culture, value);
+            #pragma warning restore CS8603 // Possible null reference return.
         }
     }
 
