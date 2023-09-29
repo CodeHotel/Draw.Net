@@ -7,10 +7,12 @@
         xmlns:Resizeables="clr-namespace:DrawNet_WPF.Resizeables;assembly=DrawNet_WPF" x:Class="TestApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid x:Name="bgrid">
+    <Canvas x:Name="outer">
+        <Resizeables:ResizeWrapper x:Name="a" Width="150" Height="150" StrokeThickness="5.0" Position="20,20">
+            <Resizeables:ResizeWrapper x:Name="b" Width="50" Height="50" StrokeThickness="2.0" Position="10,10">
+            </Resizeables:ResizeWrapper>
+        </Resizeables:ResizeWrapper>
 
-        <Resizeables:ResizeableRect HorizontalAlignment="Left" Margin="426,68,0,0" Grid.Row="1" VerticalAlignment="Top" Width="308" Opacity="0.2" Fill="LightGoldenrodYellow"  StrokeThickness="2" Stroke="DeepSkyBlue" Height="228"
-                                    BoundTo="{Binding ElementName=bgrid}"/>
+    </Canvas>
 
-    </Grid>
 </Window>
