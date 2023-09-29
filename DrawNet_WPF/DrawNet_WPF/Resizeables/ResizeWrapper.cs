@@ -42,11 +42,11 @@ namespace DrawNet_WPF.Resizeables
             #region Gets closest ancestor that is Panel. Throws exception if not found
             var parent = VisualTreeHelper.GetParent(this);
 
-            Panel foundPanel = null;
+            Canvas foundPanel = null;
 
             while (parent != null)
             {
-                if (parent is Panel panel)
+                if (parent is Canvas panel)
                 {
                     foundPanel = panel;
                     break;
@@ -54,7 +54,7 @@ namespace DrawNet_WPF.Resizeables
 
                 parent = VisualTreeHelper.GetParent(parent);
             }
-            if (foundPanel == null) throw new Exception("ResizeWrapper must be inside a Panel(Canvas,DockPanel,Grid,StackPanel,VirtualizingStackPanel,WrapPanel) to function correctly");
+            if (foundPanel == null) throw new Exception("ResizeWrapper must be inside a Canvas(ResizeWrapper, ResizeCanvas) to function correctly");
             else outerPanel = foundPanel;
             #endregion
 
@@ -184,6 +184,19 @@ namespace DrawNet_WPF.Resizeables
             Canvas.SetTop(this, v.Y);
             
         }
+
+        // The minimum size to which the wrapper can be shrunk via dragging the handles
+        public static readonly DependencyProperty ShrinkLimitProperty =
+            DependencyProperty.Register(nameof(ShrinkLimit), typeof(double), typeof(ResizeWrapper), new PropertyMetadata(13.0));
+        /// <summary>
+        /// The minimum size in which the wrapper can be shrunk via dragging the handles.
+        /// </summary>
+        public double ShrinkLimit
+        {
+            get => (double)GetValue(ShrinkLimitProperty);
+            set => SetValue(ShrinkLimitProperty, value);
+        }
+
 
         //The color of the surrounding Border
         public static readonly DependencyProperty StrokeProperty =
@@ -332,7 +345,7 @@ namespace DrawNet_WPF.Resizeables
         internal ResizeHandle?[,] Handles { get; private set; }
         internal RotationHandle RotationHandle { get; private set; }
         private Border _outerBorder;
-        internal Panel outerPanel { get; private set; }
+        internal Canvas outerPanel { get; private set; }
         #endregion
 
         #region DragHandle Control Variables
@@ -407,19 +420,31 @@ namespace DrawNet_WPF.Resizeables
             Debug.WriteLine($"{Name}: Up");
         }
 
-        private void ResizeFromVectors(Vector a, Vector b)
+        private void ResizeFromVectors(Vector MovePoint, Vector FixPoint)
         {
-            double Min = 25;
-            double baseX = Math.Min(a.X, b.X);
-            double baseY = Math.Min(a.Y, b.Y);
-            double topX = Math.Max(a.X, b.X);
-            double topY = Math.Max(a.Y, b.Y);
+            double Min = ShrinkLimit;
+            double baseX = Math.Min(MovePoint.X, FixPoint.X);
+            double baseY = Math.Min(MovePoint.Y, FixPoint.Y);
+            double topX = Math.Max(MovePoint.X, FixPoint.X);
+            double topY = Math.Max(MovePoint.Y, FixPoint.Y);
             double pWidth = topX - baseX;
             double pHeight = topY - baseY;
 
-            if (pWidth < Min || pHeight < Min) 
-                return;
-
+            if (pWidth < Min || pHeight < Min)
+            {
+                Vector newMovePoint = new Vector(0, 0);
+                if (pWidth < Min) newMovePoint.X = Math.Sign(MovePoint.X - FixPoint.X) * Min + FixPoint.X;
+                else newMovePoint.X = MovePoint.X;
+                if (pHeight < Min) newMovePoint.Y = Math.Sign(MovePoint.Y - FixPoint.Y) * Min + FixPoint.Y;
+                else newMovePoint.Y = MovePoint.Y;
+                Debug.WriteLine($"FIX: MP({newMovePoint.X},{newMovePoint.Y}), FP({FixPoint.X},{FixPoint.Y}");
+                baseX = Math.Min(newMovePoint.X, FixPoint.X);
+                baseY = Math.Min(newMovePoint.Y, FixPoint.Y);
+                topX = Math.Max(newMovePoint.X, FixPoint.X);
+                topY = Math.Max(newMovePoint.Y, FixPoint.Y);
+                pWidth = topX - baseX;
+                pHeight = topY - baseY;
+            }
             Position = new Vector(baseX, baseY);
             Width = pWidth;
             Height = pHeight;
