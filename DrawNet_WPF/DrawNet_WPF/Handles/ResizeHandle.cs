@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using DrawNet_WPF.Converters;
 using DrawNet_WPF.Resizeables;
 using Vector = DrawNet_WPF.Converters.Vector;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -21,8 +22,11 @@ namespace DrawNet_WPF.Handles
 
         public ResizeHandle()
         {
+            ComponentProperties.SetType(this, ComponentType.ResizeHandle);
             _rectangle = new Rectangle();
             _ellipse = new Ellipse();
+            ComponentProperties.SetType(_rectangle, ComponentType.ResizeHandleRectangle);
+            ComponentProperties.SetType(_ellipse, ComponentType.ResizeHandleEllipse);
             _ellipse.MouseDown += OnShapeMouseDown;
             _rectangle.MouseDown += OnShapeMouseDown;
         }
@@ -106,7 +110,10 @@ namespace DrawNet_WPF.Handles
         public ShapeType Shape
         {
             get => (ShapeType)GetValue(ShapeProperty);
-            set => SetValue(ShapeProperty, value);
+            set {
+                SetValue(ShapeProperty, value);
+                UpdateShape();
+            }
         }
 
         private Vector _position;

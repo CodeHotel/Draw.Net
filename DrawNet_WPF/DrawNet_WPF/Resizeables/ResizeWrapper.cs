@@ -2,10 +2,13 @@
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.IO;
+using System.Reflection.Metadata;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using DrawNet_WPF.Converters;
 using DrawNet_WPF.Handles;
 using Vector = DrawNet_WPF.Converters.Vector;
 
@@ -34,6 +37,7 @@ namespace DrawNet_WPF.Resizeables
             }
             #endregion
 
+            ComponentProperties.SetType(this, ComponentType.ResizeWrapper);
             ClipToBounds = false;
             Loaded += ResizeWrapper_Loaded;
         }
@@ -64,8 +68,10 @@ namespace DrawNet_WPF.Resizeables
             outerPanel.Children.Remove(this);
             outerPanel.Children.Add(_outerBorder);
             _outerBorder.Child = this;
-            _outerBorder.MouseDown += BorderMouseDownHandler;
+            if (AllowDrag) SubscribeBorder();
+            else UnsubscribeBorder();
             InitializeHandles(HandleShape);
+
             Window? window = Converters.WindowOperations.FindParentWindow(this);
             if (window != null)
             {
@@ -73,12 +79,18 @@ namespace DrawNet_WPF.Resizeables
                 window.MouseUp += WindowsMouseUp;
             }
 
-            this.Loaded -= ResizeWrapper_Loaded;
-        }
+            if (UseSelection)
+            {
+                AllowResize = false;
+                AllowDrag = true;
+            }
+            else
+            {
+                AllowResize = true;
+                AllowDrag = true;
+            }
 
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
+            this.Loaded -= ResizeWrapper_Loaded;
         }
 
         private void InitializeHandles(ShapeType HandleShape)
@@ -104,8 +116,23 @@ namespace DrawNet_WPF.Resizeables
             outerPanel.Children.Add(Handles[1, 2]);
             outerPanel.Children.Add(Handles[2, 2]);
             outerPanel.Children.Add(RotationHandle);
+            if(AllowResize) EnableHandle();
+            else DisableHandle();
+            InitHandles();
+        }
 
+        private void EnableHandle()
+        {
             #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            if (Handles == null) return;
+            Handles[0, 0].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[1, 0].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 0].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[0, 1].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 1].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[0, 2].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[1, 2].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 2].HandleMouseDown -= DiagonalMouseDownHandler;
             Handles[0, 0].HandleMouseDown += DiagonalMouseDownHandler;
             Handles[1, 0].HandleMouseDown += LinearMouseDownHandler;
             Handles[2, 0].HandleMouseDown += DiagonalMouseDownHandler;
@@ -114,9 +141,108 @@ namespace DrawNet_WPF.Resizeables
             Handles[0, 2].HandleMouseDown += DiagonalMouseDownHandler;
             Handles[1, 2].HandleMouseDown += LinearMouseDownHandler;
             Handles[2, 2].HandleMouseDown += DiagonalMouseDownHandler;
-            #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            InitHandles();
+            Handles[0, 0]._ellipse.Visibility = Visibility.Visible;
+            Handles[0, 0]._rectangle.Visibility = Visibility.Visible;
+            Handles[1, 0]._ellipse.Visibility = Visibility.Visible;
+            Handles[1, 0]._rectangle.Visibility = Visibility.Visible;
+            Handles[2, 0]._ellipse.Visibility = Visibility.Visible;
+            Handles[2, 0]._rectangle.Visibility = Visibility.Visible;
+            Handles[0, 1]._ellipse.Visibility = Visibility.Visible;
+            Handles[0, 1]._rectangle.Visibility = Visibility.Visible;
+            Handles[2, 1]._ellipse.Visibility = Visibility.Visible;
+            Handles[2, 1]._rectangle.Visibility = Visibility.Visible;
+            Handles[0, 2]._ellipse.Visibility = Visibility.Visible;
+            Handles[0, 2]._rectangle.Visibility = Visibility.Visible;
+            Handles[1, 2]._ellipse.Visibility = Visibility.Visible;
+            Handles[1, 2]._rectangle.Visibility = Visibility.Visible;
+            Handles[2, 2]._ellipse.Visibility = Visibility.Visible;
+            Handles[2, 2]._rectangle.Visibility = Visibility.Visible;
+
+            Handles[0, 0]._ellipse.Cursor = Cursors.SizeNWSE;
+            Handles[1, 0]._ellipse.Cursor = Cursors.SizeNS;
+            Handles[2, 0]._ellipse.Cursor = Cursors.SizeNESW;
+            Handles[0, 1]._ellipse.Cursor = Cursors.SizeWE;
+            Handles[2, 1]._ellipse.Cursor = Cursors.SizeWE;
+            Handles[0, 2]._ellipse.Cursor = Cursors.SizeNESW;
+            Handles[1, 2]._ellipse.Cursor = Cursors.SizeNS;
+            Handles[2, 2]._ellipse.Cursor = Cursors.SizeNWSE;
+
+            Handles[0, 0]._rectangle.Cursor = Cursors.SizeNWSE;
+            Handles[1, 0]._rectangle.Cursor = Cursors.SizeNS;
+            Handles[2, 0]._rectangle.Cursor = Cursors.SizeNESW;
+            Handles[0, 1]._rectangle.Cursor = Cursors.SizeWE;
+            Handles[2, 1]._rectangle.Cursor = Cursors.SizeWE;
+            Handles[0, 2]._rectangle.Cursor = Cursors.SizeNESW;
+            Handles[1, 2]._rectangle.Cursor = Cursors.SizeNS;
+            Handles[2, 2]._rectangle.Cursor = Cursors.SizeNWSE;
+            UpdateHandles();
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        }
+
+        private void DisableHandle()
+        {
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            if (Handles == null) return;
+            Handles[0, 0].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[1, 0].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 0].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[0, 1].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 1].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[0, 2].HandleMouseDown -= DiagonalMouseDownHandler;
+            Handles[1, 2].HandleMouseDown -= LinearMouseDownHandler;
+            Handles[2, 2].HandleMouseDown -= DiagonalMouseDownHandler;
+
+            Handles[0, 0]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[0, 0]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[1, 0]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[1, 0]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[2, 0]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[2, 0]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[0, 1]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[0, 1]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[2, 1]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[2, 1]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[0, 2]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[0, 2]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[1, 2]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[1, 2]._rectangle.Visibility = Visibility.Collapsed;
+            Handles[2, 2]._ellipse.Visibility = Visibility.Collapsed;
+            Handles[2, 2]._rectangle.Visibility = Visibility.Collapsed;
+
+            Handles[0, 0]._ellipse.Cursor = null;
+            Handles[1, 0]._ellipse.Cursor = null;
+            Handles[2, 0]._ellipse.Cursor = null;
+            Handles[0, 1]._ellipse.Cursor = null;
+            Handles[2, 1]._ellipse.Cursor = null;
+            Handles[0, 2]._ellipse.Cursor = null;
+            Handles[1, 2]._ellipse.Cursor = null;
+            Handles[2, 2]._ellipse.Cursor = null;
+
+            Handles[0, 0]._rectangle.Cursor = null;
+            Handles[1, 0]._rectangle.Cursor = null;
+            Handles[2, 0]._rectangle.Cursor = null;
+            Handles[0, 1]._rectangle.Cursor = null;
+            Handles[2, 1]._rectangle.Cursor = null;
+            Handles[0, 2]._rectangle.Cursor = null;
+            Handles[1, 2]._rectangle.Cursor = null;
+            Handles[2, 2]._rectangle.Cursor = null;
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        }
+
+        private void SubscribeBorder()
+        {
+            if (_outerBorder == null) return;
+            _outerBorder.MouseDown -= BorderMouseDownHandler;
+            _outerBorder.MouseDown += BorderMouseDownHandler;
+            _outerBorder.Cursor = Cursors.SizeAll;
+        }
+
+        private void UnsubscribeBorder()
+        {
+            if (_outerBorder == null) return;
+            _outerBorder.MouseDown -= BorderMouseDownHandler;
+            _outerBorder.Cursor = null;
         }
 
         private void InitHandles()
@@ -156,7 +282,11 @@ namespace DrawNet_WPF.Resizeables
 
         private void InitializeOuterBorder()
         {
-            if (_outerBorder == null) _outerBorder = new Border();
+            if (_outerBorder == null)
+            {
+                _outerBorder = new Border();
+                ComponentProperties.SetType(_outerBorder, ComponentType.ResizeWrapperBorder);
+            }
 
             // Set the border to surround the control
             _outerBorder.BorderBrush = Stroke;
@@ -204,6 +334,87 @@ namespace DrawNet_WPF.Resizeables
             set => SetValue(ShrinkLimitProperty, value);
         }
 
+        //Whether to allow resizing through dragging drag-to-resize handles
+        public static readonly DependencyProperty AllowResizeProperty =
+            DependencyProperty.Register(nameof(AllowResize), typeof(bool), typeof(ResizeWrapper), new PropertyMetadata(false));
+        /// <summary>
+        /// Set true to allow resizing through dragging handles, set false to disable(true by default)
+        /// </summary>
+        public bool AllowResize
+        {
+            get => (bool)GetValue(AllowResizeProperty);
+            set
+            {
+                if(value) EnableHandle();
+                else DisableHandle();
+                SetValue(AllowResizeProperty, value);
+            }
+        }
+
+        //Whether to allow dragging border to move
+        public static readonly DependencyProperty AllowDragProperty =
+            DependencyProperty.Register(nameof(AllowDrag), typeof(bool), typeof(ResizeWrapper), new PropertyMetadata(true));
+        /// <summary>
+        /// Set true to allow dragging border to move, set false to disable(true by default)
+        /// </summary>
+        public bool AllowDrag
+        {
+            get => (bool)GetValue(AllowDragProperty);
+            set
+            {
+                if(value) SubscribeBorder();
+                else UnsubscribeBorder();
+                SetValue(AllowDragProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty UseSelectionProperty =
+            DependencyProperty.Register(nameof(UseSelection), typeof(bool), typeof(ResizeWrapper), new PropertyMetadata(true));
+        /// <summary>
+        /// Set true to use selection, set false to disable(true by default)
+        /// </summary>
+        public bool UseSelection
+        {
+            get => (bool)GetValue(UseSelectionProperty);
+            set
+            {
+                if (value)
+                {
+
+                    AllowResize = false;
+                    AllowDrag = true;
+                }
+                else
+                {
+                    WrapperSelection.DeSelect(this);
+                    AllowResize = true;
+                    AllowDrag = true;
+                }
+                SetValue(UseSelectionProperty, value);
+            }
+        }
+
+
+        // DependencyProperty for NestedResize
+        public static readonly DependencyProperty NestedResizeProperty =
+            DependencyProperty.Register(nameof(NestedResize), typeof(NestedResize), typeof(ResizeWrapper), new PropertyMetadata(NestedResize.Scale));
+
+        /// <summary>
+        /// How to adjust a ResizeWrapper located inside this ResizeWrapper.<br/>
+        /// Set to None to apply no changes to size and relative position of nested ResizeWrappers<br/>
+        /// Set to Scale to maintain proportion of relative position and size<br/>
+        /// Set to MoveTrim to keep nested ResizeWrapper within boundary, and trimming if necessary(Unimplemented)
+        /// </summary>
+        public NestedResize NestedResize
+        {
+            get => (NestedResize)GetValue(NestedResizeProperty);
+            set
+            {
+                if (value == NestedResize.MoveTrim)
+                    throw new NotImplementedException("MoveTrim is not implemented yet!");
+                SetValue(NestedResizeProperty, value);
+            }
+        }
 
         //The color of the surrounding Border
         public static readonly DependencyProperty StrokeProperty =
@@ -356,25 +567,41 @@ namespace DrawNet_WPF.Resizeables
         #endregion
 
         #region DragHandle Control Variables
-        private Vector? initialMousePos = null;
-        private Vector? FixedPoint = null;
-        private Vector? MovePoint = null;
-        private Vector? vectorFactor = null;
-        private int FixedPointChange = 0;
+        internal Vector? initialMousePos = null;
+        internal Vector? FixedPoint = null;
+        internal Vector? MovePoint = null;
+        internal Vector? vectorFactor = null;
+        internal Vector? relNW = null;
+        internal Vector? relSE = null;
+        internal int FixedPointChange = 0;
         #endregion
 
         private void BorderMouseDownHandler(object sender, MouseEventArgs e)
         {
+            if (UseSelection && WrapperSelection.WrapperMouseDown(this, e)) return;
+            Window? window = Converters.WindowOperations.FindParentWindow(this);
+            if (window != null)
+            {
+                window.MouseMove += WindowsMouseMove;
+            }
             vectorFactor = new Vector(1, 1);
             FixedPointChange = 1;
             initialMousePos = new Vector(e.GetPosition(null).X, e.GetPosition(null).Y);
             FixedPoint = Position;
             MovePoint = Position + new Vector(Width, Height);
-            Debug.WriteLine($"{Name}: BorderDown");
+            //Debug.WriteLine($"{Name}: BorderDown");
+            recursiveRelativeTransformSetter();
             e.Handled = true;
+            if (UseSelection) WrapperSelection.SyncBorder(this);
         }
         private void DiagonalMouseDownHandler(object sender, MouseEventArgs e)
         {
+            if (UseSelection && WrapperSelection.WrapperMouseDown(this, e)) return;
+            Window? window = Converters.WindowOperations.FindParentWindow(this);
+            if (window != null)
+            {
+                window.MouseMove += WindowsMouseMove;
+            }
             ResizeHandle? handle = sender as ResizeHandle;
             if (handle == null) throw new UnauthorizedAccessException("Diagonal Mouse Handler can only be triggered for diagonal mouse clicks!");
             vectorFactor = new Vector(1, 1);
@@ -383,11 +610,19 @@ namespace DrawNet_WPF.Resizeables
             Vector MidPoint = Position + new Vector(Width / 2, Height / 2);
             MovePoint = MidPoint + (handle.MovType * new Vector(Width / 2, Height / 2));
             FixedPoint = MidPoint + (handle.MovType * new Vector(Width / 2, Height / 2)) * (-1);
-            Debug.WriteLine($"{Name}: DiagonalDown");
+            //Debug.WriteLine($"{Name}: DiagonalDown");
+            recursiveRelativeTransformSetter();
             e.Handled = true;
+            if (UseSelection) WrapperSelection.SyncDiagonal(this, handle.MovType);
         }
         private void LinearMouseDownHandler(object sender, MouseEventArgs e)
         {
+            if (UseSelection && WrapperSelection.WrapperMouseDown(this, e)) return;
+            Window? window = Converters.WindowOperations.FindParentWindow(this);
+            if (window != null)
+            {
+                window.MouseMove += WindowsMouseMove;
+            }
             ResizeHandle? handle = sender as ResizeHandle;
             if (handle == null) throw new UnauthorizedAccessException("Linear Mouse Handler can only be triggered for linear mouse clicks!");
             vectorFactor = new Vector(handle.MovType.X == 0 ? 0 : 1, handle.MovType.Y == 0 ? 0 : 1);
@@ -397,37 +632,48 @@ namespace DrawNet_WPF.Resizeables
             Vector RotateVector = new Vector(handle.MovType.X - handle.MovType.Y, handle.MovType.X + handle.MovType.Y); //rotates as if clockwise+1 rel to original handle
             MovePoint = MidPoint + (RotateVector * new Vector(Width / 2, Height / 2));
             FixedPoint = MidPoint + (RotateVector * new Vector(Width / 2, Height / 2)) * (-1);
-            Debug.WriteLine($"{Name}: LinearDown");
+            recursiveRelativeTransformSetter();
+            //Debug.WriteLine($"{Name}: LinearDown");
             e.Handled = true;
+            if (UseSelection) WrapperSelection.SyncLinear(this, handle.MovType);
         }
 
         private void WindowsMouseMove(object sender, MouseEventArgs e)
         {
             if (FixedPoint != null && MovePoint != null && initialMousePos != null && vectorFactor != null)
             {
-                Debug.WriteLine($"{Name}: Mov");
+                //Debug.WriteLine($"{Name}: Mov");
                 Vector Movement = new Vector(e.GetPosition(null).X, e.GetPosition(null).Y) - initialMousePos;
-                Debug.WriteLine($"Movement: {Movement.X},{Movement.Y}");
+                //Debug.WriteLine($"Movement: {Movement.X},{Movement.Y}");
                 Vector a = Movement * vectorFactor + MovePoint;
                 Vector b = Movement * FixedPointChange + FixedPoint;
-                Debug.WriteLine($"MP: {a.X},{a.Y}");
-                Debug.WriteLine($"FP: {b.X},{b.Y}");
-                ResizeFromVectors(Movement * vectorFactor + MovePoint, Movement * FixedPointChange + FixedPoint);
+                //Debug.WriteLine($"MP: {a.X},{a.Y}");
+                //Debug.WriteLine($"FP: {b.X},{b.Y}");
+                Vector prevsize = ResizeFromVectors(Movement * vectorFactor + MovePoint, Movement * FixedPointChange + FixedPoint);
                 e.Handled = true;
+                if (UseSelection) WrapperSelection.SyncTransform(this, Movement, prevsize);
             }
         }
         
         private void WindowsMouseUp(object sender, MouseEventArgs e)
         {
+            Window? window = Converters.WindowOperations.FindParentWindow(this);
+            if (window != null)
+            {
+                window.MouseMove -= WindowsMouseMove;
+            }
             initialMousePos = null;
             FixedPoint = null;
             MovePoint = null;
             vectorFactor = null;
+            relNW = null;
+            relSE = null;
             FixedPointChange = 0;
-            Debug.WriteLine($"{Name}: Up");
+            //Debug.WriteLine($"{Name}: Up");
+            if (UseSelection) WrapperSelection.SyncMouseUp(this);
         }
 
-        private void ResizeFromVectors(Vector MovePoint, Vector FixPoint)
+        internal Vector ResizeFromVectors(Vector MovePoint, Vector FixPoint)
         {
             double Min = ShrinkLimit;
             double baseX = Math.Min(MovePoint.X, FixPoint.X);
@@ -436,15 +682,20 @@ namespace DrawNet_WPF.Resizeables
             double topY = Math.Max(MovePoint.Y, FixPoint.Y);
             double pWidth = topX - baseX;
             double pHeight = topY - baseY;
+            double prevWidth, prevHeight;
 
             if (pWidth < Min || pHeight < Min)
             {
+                if (this.Name == "b")
+                {
+
+                }
                 Vector newMovePoint = new Vector(0, 0);
-                if (pWidth < Min) newMovePoint.X = Math.Sign(MovePoint.X - FixPoint.X) * Min + FixPoint.X;
+                if (pWidth < Min) newMovePoint.X = ((MovePoint.X - FixPoint.X) < 0 ? -1 : 1) * Min + FixPoint.X;
                 else newMovePoint.X = MovePoint.X;
-                if (pHeight < Min) newMovePoint.Y = Math.Sign(MovePoint.Y - FixPoint.Y) * Min + FixPoint.Y;
+                if (pHeight < Min) newMovePoint.Y = ((MovePoint.Y - FixPoint.Y) < 0 ? -1 : 1) * Min + FixPoint.Y;
                 else newMovePoint.Y = MovePoint.Y;
-                Debug.WriteLine($"FIX: MP({newMovePoint.X},{newMovePoint.Y}), FP({FixPoint.X},{FixPoint.Y}");
+                //Debug.WriteLine($"FIX: MP({newMovePoint.X},{newMovePoint.Y}), FP({FixPoint.X},{FixPoint.Y})");
                 baseX = Math.Min(newMovePoint.X, FixPoint.X);
                 baseY = Math.Min(newMovePoint.Y, FixPoint.Y);
                 topX = Math.Max(newMovePoint.X, FixPoint.X);
@@ -453,21 +704,113 @@ namespace DrawNet_WPF.Resizeables
                 pHeight = topY - baseY;
             }
             Position = new Vector(baseX, baseY);
+            prevWidth = Width;
+            prevHeight = Height;
+            Width = pWidth;
+            Height = pHeight;
+            InitializeOuterBorder();
+            UpdateHandles();
+
+            if (NestedResize == NestedResize.Scale)
+            {
+                foreach (UIElement element in Children)
+                {
+                    if (ComponentProperties.GetType(element) == ComponentType.ResizeWrapperBorder && element is Border wrapborder)
+                    {
+                        UIElement c = wrapborder.Child;
+                        if (c is ResizeWrapper nestedChild && nestedChild.relNW != null && nestedChild.relSE != null)
+                        {
+                            nestedChild.ResizeFromVectors(
+                            nestedChild.relNW * new Vector(Width, Height),
+                            nestedChild.relSE * new Vector(Width, Height));
+                        }
+                    }
+                }
+            }
+            return new Vector(prevWidth, prevHeight);
+        }
+
+        internal void recursiveRelativeTransformSetter()
+        {
+            if (NestedResize == NestedResize.Scale)
+            {
+                foreach (UIElement element in Children)
+                {
+                    if (ComponentProperties.GetType(element) == ComponentType.ResizeWrapperBorder && element is Border wrapborder)
+                    {
+                        UIElement c = wrapborder.Child;
+                        if (c is ResizeWrapper nestedChild)
+                        {
+                            nestedChild.relNW = nestedChild.Position / new Vector(Width, Height);
+                            nestedChild.relSE = (nestedChild.Position + new Vector(nestedChild.Width, nestedChild.Height)) / new Vector(Width, Height);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ForceResize(Vector Point1, Vector Point2)
+        {
+            double baseX = Math.Min(Point1.X, Point2.X);
+            double baseY = Math.Min(Point1.Y, Point2.Y);
+            double topX = Math.Max(Point1.X, Point2.X);
+            double topY = Math.Max(Point1.Y, Point2.Y);
+            double pWidth = topX - baseX;
+            double pHeight = topY - baseY;
+
+
+            Position = new Vector(baseX, baseY);
             Width = pWidth;
             Height = pHeight;
             InitializeOuterBorder();
             UpdateHandles();
         }
 
-        internal void ResizeClick()
+        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
         {
-            // Implement your resize logic here.
+            base.OnVisualChildrenChanged(visualAdded, visualRemoved);
+
+            if (visualAdded is FrameworkElement child) // Using pattern matching for concise type checking and casting
+            {
+                if (ComponentProperties.GetType(child) == ComponentType.None)
+                {
+                    // If child is a valid external control
+                    child.Loaded += (s, e) =>
+                    {
+                        child.Width = Width;
+                        child.Height = Height;
+                        SetLeft(child, 0);
+                        SetTop(child, 0);
+                    };
+
+                }
+            }
         }
 
-        internal void Rotate()
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
-            // Implement your rotate logic here.
+            base.OnRenderSizeChanged(sizeInfo);
+            foreach (UIElement element in Children) {
+                if (element is FrameworkElement child) // Using pattern matching for concise type checking and casting
+                {
+                    if (ComponentProperties.GetType(child) == ComponentType.None)
+                    {
+                        // If child is a valid external control
+                        child.Width = sizeInfo.NewSize.Width;
+                        child.Height = sizeInfo.NewSize.Height;
+                        SetLeft(child, 0);
+                        SetTop(child, 0);
+                    }
+                }
+            }
         }
 
+
+    }
+    public enum NestedResize
+    {
+        None,
+        Scale,
+        MoveTrim
     }
 }

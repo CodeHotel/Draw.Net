@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using DrawNet_WPF.Converters;
 using DrawNet_WPF.Resizeables;
 using Vector = DrawNet_WPF.Converters.Vector;
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -16,8 +17,11 @@ namespace DrawNet_WPF.Handles
 
         public RotationHandle()
         {
+            ComponentProperties.SetType(this, ComponentType.RotateHandle);
             _rectangle = new Rectangle();
             _ellipse = new Ellipse();
+            ComponentProperties.SetType(_rectangle, ComponentType.RotateHandleRectangle);
+            ComponentProperties.SetType(_ellipse, ComponentType.RotateHandleEllipse);
         }
         public override void OnApplyTemplate()
         {
@@ -74,7 +78,7 @@ namespace DrawNet_WPF.Handles
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
-            ParentControl?.Rotate();
+            //ParentControl?.Rotate();
         }
 
     }
