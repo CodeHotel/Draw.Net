@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TestApp"
-        xmlns:Resizeables="clr-namespace:DrawNet_WPF.Resizeables;assembly=DrawNet_WPF" x:Class="TestApp.MainWindow"
+        xmlns:Resizeables="clr-namespace:DrawNet_WPF.Resizeables;assembly=DrawNet_WPF"
+    x:Class="TestApp.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Canvas x:Name="outer">
@@ -19,6 +20,6 @@
         </Resizeables:ResizeWrapper>
         <Resizeables:ResizeWrapper x:Name="t" Width="150" Height="150" StrokeThickness="5.0" Position="100,40" HandleShape="Circle" Stroke="Orange" AllowResize="False"/>
         <Resizeables:ResizeWrapper x:Name="t1" Width="150" Height="150" StrokeThickness="5.0" Position="200,80" HandleShape="Circle" Stroke="Orange" AllowResize="False"/>
-    </Canvas>
 
+    </Canvas>
 </Window>

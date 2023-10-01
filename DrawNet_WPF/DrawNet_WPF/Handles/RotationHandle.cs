@@ -10,7 +10,7 @@ using Vector = DrawNet_WPF.Converters.Vector;
 namespace DrawNet_WPF.Handles
 {
     
-    public class RotationHandle : Control
+    internal class RotationHandle : Control
     {
         private Rectangle _rectangle;
         private Ellipse _ellipse;

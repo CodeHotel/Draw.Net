@@ -13,7 +13,7 @@ using Vector = DrawNet_WPF.Converters.Vector;
 
 namespace DrawNet_WPF.Handles
 {
-    public class ResizeHandle : Control
+    internal class ResizeHandle : Control
     {
 
         internal Rectangle _rectangle;

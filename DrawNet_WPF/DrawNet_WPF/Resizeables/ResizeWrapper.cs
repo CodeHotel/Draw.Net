@@ -686,16 +686,11 @@ namespace DrawNet_WPF.Resizeables
 
             if (pWidth < Min || pHeight < Min)
             {
-                if (this.Name == "b")
-                {
-
-                }
                 Vector newMovePoint = new Vector(0, 0);
                 if (pWidth < Min) newMovePoint.X = ((MovePoint.X - FixPoint.X) < 0 ? -1 : 1) * Min + FixPoint.X;
                 else newMovePoint.X = MovePoint.X;
                 if (pHeight < Min) newMovePoint.Y = ((MovePoint.Y - FixPoint.Y) < 0 ? -1 : 1) * Min + FixPoint.Y;
                 else newMovePoint.Y = MovePoint.Y;
-                //Debug.WriteLine($"FIX: MP({newMovePoint.X},{newMovePoint.Y}), FP({FixPoint.X},{FixPoint.Y})");
                 baseX = Math.Min(newMovePoint.X, FixPoint.X);
                 baseY = Math.Min(newMovePoint.Y, FixPoint.Y);
                 topX = Math.Max(newMovePoint.X, FixPoint.X);
@@ -703,9 +698,13 @@ namespace DrawNet_WPF.Resizeables
                 pWidth = topX - baseX;
                 pHeight = topY - baseY;
             }
-            Position = new Vector(baseX, baseY);
             prevWidth = Width;
             prevHeight = Height;
+            Vector newposition = new Vector(baseX, baseY);
+
+            TriggerResizeEvent(Width, Height, pWidth, pHeight, Position, newposition);
+
+            Position = newposition;
             Width = pWidth;
             Height = pHeight;
             InitializeOuterBorder();
@@ -805,6 +804,16 @@ namespace DrawNet_WPF.Resizeables
             }
         }
 
+        /// <summary>
+        /// A event triggered when element is resized or moved by mouse movement
+        /// </summary>
+        public event EventHandler<DimensionChangedEventArgs> SizeChangedByDrag;
+
+        private void TriggerResizeEvent(double prevWidth, double prevHeight, double Width, double Height, Vector prevLoc, Vector newLoc)
+        {
+            SizeChangedByDrag?.Invoke(this,
+                new DimensionChangedEventArgs(new Vector(prevWidth, prevHeight), new Vector(Width, Height), prevLoc, newLoc));
+        }
 
     }
     public enum NestedResize

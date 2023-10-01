@@ -2,8 +2,8 @@ C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\bin\Debug\net6.0-windows\DrawNet_WPF.dll
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\bin\Debug\net6.0-windows\DrawNet_WPF.pdb
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\DrawNet_WPF.csproj.AssemblyReference.cache
+C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\GeneratedInternalTypeHelper.g.cs
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\DrawNet_WPF_MarkupCompile.cache
-C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\DrawNet_WPF_MarkupCompile.lref
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\Themes\Generic.baml
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\DrawNet_WPF.g.resources
 C:\Users\mh7cp\Desktop\프로젝트(진행중)\Draw.Net\DrawNet_WPF\DrawNet_WPF\obj\Debug\net6.0-windows\DrawNet_WPF.GeneratedMSBuildEditorConfig.editorconfig
